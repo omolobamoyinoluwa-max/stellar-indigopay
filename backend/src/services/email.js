@@ -4,7 +4,7 @@
 "use strict";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
-const FROM_ADDRESS   = process.env.EMAIL_FROM || "IndigoPay <updates@indigopay.app>";
+const FROM_ADDRESS   = process.env.EMAIL_FROM || "Stellar-IndigoPay <updates@stellarindigopay.app>";
 const APP_URL        = process.env.APP_URL || "http://localhost:3000";
 
 /**
@@ -61,7 +61,7 @@ async function sendUpdateNotifications({ project, update, emails }) {
 // exported as `sendUpdateNotifications`
 
 const ADMIN_NOTIFICATION_EMAIL =
-  process.env.ADMIN_NOTIFICATION_EMAIL || process.env.EMAIL_FROM || "IndigoPay <updates@indigopay.app>";
+  process.env.ADMIN_NOTIFICATION_EMAIL || process.env.EMAIL_FROM || "Stellar-IndigoPay <updates@stellarindigopay.app>";
 
 /**
  * Notify platform admins that a new verification request has been submitted
@@ -126,31 +126,31 @@ function buildVerificationHtml({ request, adminUrl }) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#f0f7f0;font-family:sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f7f0;padding:32px 0;">
+<body style="margin:0;padding:0;background:#FAFAFE;font-family:'Inter',sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#FAFAFE;padding:32px 0;">
     <tr><td align="center">
       <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;max-width:600px;width:100%;">
-        <tr><td style="background:#2d6a2d;padding:24px 32px;">
-          <p style="margin:0;color:#ffffff;font-size:20px;font-weight:700;">🌱 New Verification Request</p>
+        <tr><td style="background:#4F46E5;padding:24px 32px;">
+          <p style="margin:0;color:#ffffff;font-size:20px;font-weight:700;">✦ New Verification Request</p>
         </td></tr>
         <tr><td style="padding:32px;">
-          <p style="margin:0 0 4px;font-size:13px;color:#8aaa8a;text-transform:uppercase;letter-spacing:.05em;">Stellar IndigoPay</p>
-          <h1 style="margin:0 0 16px;font-size:22px;color:#1a3a1a;">${escHtml(request.projectName)}</h1>
-          <table cellpadding="6" cellspacing="0" style="font-size:14px;color:#3a5a3a;width:100%;margin-bottom:20px;">
-            <tr><td style="color:#8aaa8a;width:160px;">Organisation</td><td><strong>${escHtml(request.organizationName)}</strong></td></tr>
-            ${request.organizationWebsite ? `<tr><td style="color:#8aaa8a;">Website</td><td><a href="${escHtml(request.organizationWebsite)}" style="color:#2d6a2d;">${escHtml(request.organizationWebsite)}</a></td></tr>` : ""}
-            ${request.organizationCountry ? `<tr><td style="color:#8aaa8a;">Country</td><td>${escHtml(request.organizationCountry)}</td></tr>` : ""}
-            <tr><td style="color:#8aaa8a;">Contact email</td><td>${escHtml(request.contactEmail)}</td></tr>
-            <tr><td style="color:#8aaa8a;">Wallet address</td><td style="font-family:monospace;font-size:12px;color:#1a3a1a;">${escHtml(request.walletAddress)}</td></tr>
-            <tr><td style="color:#8aaa8a;">Project category</td><td>${escHtml(request.projectCategory)}</td></tr>
-            <tr><td style="color:#8aaa8a;">Project location</td><td>${escHtml(request.projectLocation)}</td></tr>
-            <tr><td style="color:#8aaa8a;">Expected CO₂ per XLM</td><td><strong>${escHtml(request.co2PerXLM)} kg</strong></td></tr>
-            ${request.expectedAnnualTonnesCO2 ? `<tr><td style="color:#8aaa8a;">Annual tonnes CO₂</td><td>${escHtml(request.expectedAnnualTonnesCO2)}</td></tr>` : ""}
+          <p style="margin:0 0 4px;font-size:13px;color:#94A3B8;text-transform:uppercase;letter-spacing:.05em;">Stellar-IndigoPay</p>
+          <h1 style="margin:0 0 16px;font-size:22px;color:#0F172A;">${escHtml(request.projectName)}</h1>
+          <table cellpadding="6" cellspacing="0" style="font-size:14px;color:#334155;width:100%;margin-bottom:20px;">
+            <tr><td style="color:#94A3B8;width:160px;">Organisation</td><td><strong>${escHtml(request.organizationName)}</strong></td></tr>
+            ${request.organizationWebsite ? `<tr><td style="color:#94A3B8;">Website</td><td><a href="${escHtml(request.organizationWebsite)}" style="color:#4F46E5;">${escHtml(request.organizationWebsite)}</a></td></tr>` : ""}
+            ${request.organizationCountry ? `<tr><td style="color:#94A3B8;">Country</td><td>${escHtml(request.organizationCountry)}</td></tr>` : ""}
+            <tr><td style="color:#94A3B8;">Contact email</td><td>${escHtml(request.contactEmail)}</td></tr>
+            <tr><td style="color:#94A3B8;">Wallet address</td><td style="font-family:monospace;font-size:12px;color:#0F172A;">${escHtml(request.walletAddress)}</td></tr>
+            <tr><td style="color:#94A3B8;">Project category</td><td>${escHtml(request.projectCategory)}</td></tr>
+            <tr><td style="color:#94A3B8;">Project location</td><td>${escHtml(request.projectLocation)}</td></tr>
+            <tr><td style="color:#94A3B8;">Expected CO₂ per XLM</td><td><strong>${escHtml(request.co2PerXLM)} kg</strong></td></tr>
+            ${request.expectedAnnualTonnesCO2 ? `<tr><td style="color:#94A3B8;">Annual tonnes CO₂</td><td>${escHtml(request.expectedAnnualTonnesCO2)}</td></tr>` : ""}
           </table>
-          <p style="margin:0 0 6px;font-size:13px;color:#8aaa8a;text-transform:uppercase;letter-spacing:.05em;">Supporting documents</p>
+          <p style="margin:0 0 6px;font-size:13px;color:#94A3B8;text-transform:uppercase;letter-spacing:.05em;">Supporting documents</p>
           ${docsList}
-          ${request.projectDescription ? `<p style="margin:20px 0 0;font-size:14px;color:#3a5a3a;line-height:1.6;">${escHtml(request.projectDescription)}</p>` : ""}
-          <a href="${adminUrl}" style="display:inline-block;margin-top:24px;background:#2d6a2d;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:8px;font-size:14px;font-weight:600;">Review in Admin →</a>
+          ${request.projectDescription ? `<p style="margin:20px 0 0;font-size:14px;color:#334155;line-height:1.6;">${escHtml(request.projectDescription)}</p>` : ""}
+          <a href="${adminUrl}" style="display:inline-block;margin-top:24px;background:#4F46E5;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:8px;font-size:14px;font-weight:600;">Review in Admin →</a>
         </td></tr>
       </table>
     </td></tr>
@@ -191,22 +191,22 @@ function buildHtml({ project, update, projectUrl }) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#f0f7f0;font-family:sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f7f0;padding:32px 0;">
+<body style="margin:0;padding:0;background:#FAFAFE;font-family:'Inter',sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#FAFAFE;padding:32px 0;">
     <tr><td align="center">
       <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;max-width:600px;width:100%;">
-        <tr><td style="background:#2d6a2d;padding:24px 32px;">
-          <p style="margin:0;color:#ffffff;font-size:20px;font-weight:700;">🌱 Stellar IndigoPay</p>
+        <tr><td style="background:#4F46E5;padding:24px 32px;">
+          <p style="margin:0;color:#ffffff;font-size:20px;font-weight:700;">✦ Stellar-IndigoPay</p>
         </td></tr>
         <tr><td style="padding:32px;">
-          <p style="margin:0 0 4px;font-size:13px;color:#8aaa8a;text-transform:uppercase;letter-spacing:.05em;">Project Update</p>
-          <h1 style="margin:0 0 8px;font-size:22px;color:#1a3a1a;">${escHtml(update.title)}</h1>
-          <p style="margin:0 0 24px;font-size:13px;color:#5a7a5a;">${escHtml(project.name)}</p>
-          <p style="margin:0 0 28px;font-size:15px;color:#3a5a3a;line-height:1.6;">${escHtml(update.body)}</p>
-          <a href="${projectUrl}" style="display:inline-block;background:#2d6a2d;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:8px;font-size:14px;font-weight:600;">View Project →</a>
+          <p style="margin:0 0 4px;font-size:13px;color:#94A3B8;text-transform:uppercase;letter-spacing:.05em;">Project Update</p>
+          <h1 style="margin:0 0 8px;font-size:22px;color:#0F172A;">${escHtml(update.title)}</h1>
+          <p style="margin:0 0 24px;font-size:13px;color:#64748B;">${escHtml(project.name)}</p>
+          <p style="margin:0 0 28px;font-size:15px;color:#334155;line-height:1.6;">${escHtml(update.body)}</p>
+          <a href="${projectUrl}" style="display:inline-block;background:#4F46E5;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:8px;font-size:14px;font-weight:600;">View Project →</a>
         </td></tr>
-        <tr><td style="padding:16px 32px;border-top:1px solid #e8f0e8;">
-          <p style="margin:0;font-size:12px;color:#8aaa8a;">You're receiving this because you subscribed to updates for <strong>${escHtml(project.name)}</strong>.</p>
+        <tr><td style="padding:16px 32px;border-top:1px solid #E2E8F0;">
+          <p style="margin:0;font-size:12px;color:#94A3B8;">You're receiving this because you subscribed to updates for <strong>${escHtml(project.name)}</strong>.</p>
         </td></tr>
       </table>
     </td></tr>

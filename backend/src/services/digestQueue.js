@@ -26,7 +26,7 @@ const QUEUE = "monthly-impact-digest";
 const DEFAULT_CRON = "0 8 1 * *";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
-const FROM_ADDRESS   = process.env.EMAIL_FROM || "IndigoPay <updates@indigopay.app>";
+const FROM_ADDRESS   = process.env.EMAIL_FROM || "Stellar-IndigoPay <updates@stellarindigopay.app>";
 const APP_URL        = process.env.APP_URL || "http://localhost:3000";
 
 let boss = null;
@@ -43,38 +43,38 @@ function escHtml(str) {
 
 function buildDigestHtml({ project, stats, milestones, updates, projectUrl, monthLabel }) {
   const milestonesHtml = milestones.length
-    ? `<p style="margin:0 0 8px;font-size:14px;font-weight:600;color:#1a3a1a;">🏆 New Milestones</p><ul style="margin:0 0 24px;padding-left:20px;">${milestones.map(m => `<li style="color:#3a5a3a;font-size:14px;line-height:1.7;">${escHtml(m.title)} (${m.percentage}%)</li>`).join("")}</ul>`
+    ? `<p style="margin:0 0 8px;font-size:14px;font-weight:600;color:#0F172A;">🏆 New Milestones</p><ul style="margin:0 0 24px;padding-left:20px;">${milestones.map(m => `<li style="color:#334155;font-size:14px;line-height:1.7;">${escHtml(m.title)} (${m.percentage}%)</li>`).join("")}</ul>`
     : "";
 
   const updatesHtml = updates.length
-    ? `<p style="margin:0 0 8px;font-size:14px;font-weight:600;color:#1a3a1a;">📰 Recent Updates</p><ul style="margin:0 0 24px;padding-left:20px;">${updates.map(u => `<li style="color:#3a5a3a;font-size:14px;line-height:1.7;"><strong>${escHtml(u.title)}</strong> — ${escHtml(u.body.slice(0, 120))}${u.body.length > 120 ? "…" : ""}</li>`).join("")}</ul>`
+    ? `<p style="margin:0 0 8px;font-size:14px;font-weight:600;color:#0F172A;">📰 Recent Updates</p><ul style="margin:0 0 24px;padding-left:20px;">${updates.map(u => `<li style="color:#334155;font-size:14px;line-height:1.7;"><strong>${escHtml(u.title)}</strong> — ${escHtml(u.body.slice(0, 120))}${u.body.length > 120 ? "…" : ""}</li>`).join("")}</ul>`
     : "";
 
   return `<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#f0f7f0;font-family:sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f7f0;padding:32px 0;">
+<body style="margin:0;padding:0;background:#FAFAFE;font-family:'Inter',sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#FAFAFE;padding:32px 0;">
     <tr><td align="center">
       <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;max-width:600px;width:100%;">
-        <tr><td style="background:#2d6a2d;padding:24px 32px;">
-          <p style="margin:0;color:#ffffff;font-size:20px;font-weight:700;">🌱 Stellar IndigoPay</p>
-          <p style="margin:4px 0 0;color:#c8e6c8;font-size:13px;">Monthly Impact Digest — ${escHtml(monthLabel)}</p>
+        <tr><td style="background:#4F46E5;padding:24px 32px;">
+          <p style="margin:0;color:#ffffff;font-size:20px;font-weight:700;">✦ Stellar-IndigoPay</p>
+          <p style="margin:4px 0 0;color:#C7D2FE;font-size:13px;">Monthly Impact Digest — ${escHtml(monthLabel)}</p>
         </td></tr>
         <tr><td style="padding:32px;">
-          <h1 style="margin:0 0 4px;font-size:22px;color:#1a3a1a;">${escHtml(project.name)}</h1>
-          <p style="margin:0 0 24px;font-size:13px;color:#5a7a5a;">Here's what happened this month</p>
+          <h1 style="margin:0 0 4px;font-size:22px;color:#0F172A;">${escHtml(project.name)}</h1>
+          <p style="margin:0 0 24px;font-size:13px;color:#64748B;">Here's what happened this month</p>
 
           <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 28px;">
             <tr>
-              <td style="background:#f0f7f0;border-radius:8px;padding:16px;text-align:center;width:50%;">
-                <p style="margin:0;font-size:24px;font-weight:700;color:#2d6a2d;">${escHtml(stats.raisedXLM)} XLM</p>
-                <p style="margin:4px 0 0;font-size:12px;color:#5a7a5a;">Raised this month</p>
+              <td style="background:#EEEFFB;border-radius:8px;padding:16px;text-align:center;width:50%;">
+                <p style="margin:0;font-size:24px;font-weight:700;color:#4F46E5;">${escHtml(stats.raisedXLM)} XLM</p>
+                <p style="margin:4px 0 0;font-size:12px;color:#64748B;">Raised this month</p>
               </td>
               <td style="width:16px;"></td>
-              <td style="background:#f0f7f0;border-radius:8px;padding:16px;text-align:center;width:50%;">
-                <p style="margin:0;font-size:24px;font-weight:700;color:#2d6a2d;">${escHtml(String(stats.co2OffsetKg))} kg</p>
-                <p style="margin:4px 0 0;font-size:12px;color:#5a7a5a;">CO₂ offset this month</p>
+              <td style="background:#EEEFFB;border-radius:8px;padding:16px;text-align:center;width:50%;">
+                <p style="margin:0;font-size:24px;font-weight:700;color:#4F46E5;">${escHtml(String(stats.co2OffsetKg))} kg</p>
+                <p style="margin:4px 0 0;font-size:12px;color:#64748B;">CO₂ offset this month</p>
               </td>
             </tr>
           </table>
@@ -82,10 +82,10 @@ function buildDigestHtml({ project, stats, milestones, updates, projectUrl, mont
           ${milestonesHtml}
           ${updatesHtml}
 
-          <a href="${projectUrl}" style="display:inline-block;background:#2d6a2d;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:8px;font-size:14px;font-weight:600;">View Project →</a>
+          <a href="${projectUrl}" style="display:inline-block;background:#4F46E5;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:8px;font-size:14px;font-weight:600;">View Project →</a>
         </td></tr>
-        <tr><td style="padding:16px 32px;border-top:1px solid #e8f0e8;">
-          <p style="margin:0;font-size:12px;color:#8aaa8a;">You're receiving this monthly digest because you subscribed to <strong>${escHtml(project.name)}</strong>.</p>
+        <tr><td style="padding:16px 32px;border-top:1px solid #E2E8F0;">
+          <p style="margin:0;font-size:12px;color:#94A3B8;">You're receiving this monthly digest because you subscribed to <strong>${escHtml(project.name)}</strong>.</p>
         </td></tr>
       </table>
     </td></tr>
@@ -96,7 +96,7 @@ function buildDigestHtml({ project, stats, milestones, updates, projectUrl, mont
 
 function buildDigestText({ project, stats, milestones, updates, projectUrl, monthLabel }) {
   const lines = [
-    `Stellar IndigoPay — Monthly Impact Digest (${monthLabel})`,
+    `Stellar-IndigoPay — Monthly Impact Digest (${monthLabel})`,
     `Project: ${project.name}`,
     "",
     `XLM Raised This Month : ${stats.raisedXLM} XLM`,
