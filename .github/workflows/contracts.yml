@@ -22,6 +22,12 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
+          # Explicitly match the toolchain in contracts/rust-toolchain.toml so
+          # the rustfmt and clippy components are installed for that version.
+          # Without this, the action auto-detects the toolchain from the .toml
+          # file but only installs components for the default "stable" channel,
+          # causing "cargo-fmt not installed for toolchain '1.91.0'" errors.
+          toolchain: 1.91.0
           targets: wasm32v1-none
           components: rustfmt, clippy
 
