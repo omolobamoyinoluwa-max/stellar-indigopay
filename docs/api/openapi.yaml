@@ -6,6 +6,9 @@ info:
     OpenAPI 3.0 documentation for the backend REST API used by Stellar-IndigoPay.
     The API exposes project discovery, donations, profiles, leaderboard, notifications,
     ratings, updates, jobs, stats, and admin management endpoints.
+  contact:
+    name: Stellar-IndigoPay Team
+    url: https://github.com/Stellar-IndigoPay/Stellar-IndigoPay
   license:
     name: MIT
 servers:
@@ -176,12 +179,6 @@ components:
           example: Invalid request payload
       required:
         - error
-    SuccessResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: true
     Project:
       type: object
       properties:
@@ -805,6 +802,7 @@ paths:
     get:
       tags: [Projects]
       summary: Get featured project
+      operationId: getFeaturedProject
       description: Returns the currently featured active project.
       responses:
         "200":
@@ -824,6 +822,8 @@ paths:
     get:
       tags: [Projects]
       summary: List projects
+      operationId: listProjects
+      description: Retrieve a paginated list of projects with optional filters for category, status, verification, and search.
       parameters:
         - $ref: "#/components/parameters/LimitQuery"
         - $ref: "#/components/parameters/CursorQuery"
@@ -867,6 +867,8 @@ paths:
     post:
       tags: [Projects]
       summary: Create a project
+      operationId: createProject
+      description: Register a new climate project on the platform with name, description, location, category, and wallet address.
       requestBody:
         required: true
         content:
@@ -893,6 +895,8 @@ paths:
     get:
       tags: [Projects]
       summary: Verify a project on-chain
+      operationId: verifyProjectOnChain
+      description: Check the on-chain verification status of a project registered on the Soroban smart contract.
       parameters:
         - $ref: "#/components/parameters/ProjectId"
       responses:
@@ -921,6 +925,8 @@ paths:
     post:
       tags: [Projects]
       summary: Create a campaign
+      operationId: createCampaign
+      description: Create a new fundraising campaign under a project with a goal, deadline, and description.
       parameters:
         - $ref: "#/components/parameters/ProjectId"
       requestBody:
@@ -950,6 +956,8 @@ paths:
     get:
       tags: [Projects]
       summary: List campaigns for a project
+      operationId: listProjectCampaigns
+      description: Retrieve all fundraising campaigns associated with a specific project.
       parameters:
         - $ref: "#/components/parameters/ProjectId"
       responses:
@@ -970,6 +978,8 @@ paths:
     get:
       tags: [Projects]
       summary: List project milestones
+      operationId: listProjectMilestones
+      description: Retrieve all milestones defined for a project, including their completion status.
       parameters:
         - $ref: "#/components/parameters/ProjectId"
       responses:
@@ -989,6 +999,8 @@ paths:
     post:
       tags: [Projects]
       summary: Create a milestone
+      operationId: createProjectMilestone
+      description: Add a new milestone with a percentage target to track a project's progress.
       parameters:
         - $ref: "#/components/parameters/ProjectId"
       requestBody:
@@ -1017,6 +1029,8 @@ paths:
     post:
       tags: [Projects]
       summary: Mark a milestone as reached
+      operationId: reachProjectMilestone
+      description: Mark a milestone as completed by providing the on-chain transaction hash.
       parameters:
         - $ref: "#/components/parameters/ProjectId"
         - $ref: "#/components/parameters/MilestoneId"
@@ -1046,6 +1060,8 @@ paths:
     post:
       tags: [Projects]
       summary: Build a Soroban registration transaction
+      operationId: buildRegistrationTransaction
+      description: Build and return a Soroban contract registration transaction XDR for admin signing.
       requestBody:
         required: true
         content:
@@ -1072,6 +1088,8 @@ paths:
     post:
       tags: [Projects]
       summary: Confirm a project registration transaction
+      operationId: confirmRegistrationTransaction
+      description: Confirm a project registration by submitting the on-chain transaction hash.
       requestBody:
         required: true
         content:
@@ -1098,6 +1116,8 @@ paths:
     get:
       tags: [Projects]
       summary: Get a project by id
+      operationId: getProjectById
+      description: Retrieve detailed information about a specific project by its unique identifier.
       parameters:
         - $ref: "#/components/parameters/ProjectId"
       responses:
@@ -1118,6 +1138,8 @@ paths:
     post:
       tags: [Projects]
       summary: Enqueue a donor-facing AI summary
+      operationId: generateProjectSummary
+      description: Request AI-powered summary generation for a project. The summary is generated asynchronously.
       parameters:
         - $ref: "#/components/parameters/ProjectId"
       requestBody:
@@ -1155,6 +1177,8 @@ paths:
     post:
       tags: [Projects]
       summary: Create a donation matching offer
+      operationId: createMatchingOffer
+      description: Create a donation matching offer where a matcher pledges to match donations up to a cap with a multiplier.
       parameters:
         - $ref: "#/components/parameters/ProjectId"
       requestBody:
@@ -1182,6 +1206,8 @@ paths:
     get:
       tags: [Projects]
       summary: List active matching offers for a project
+      operationId: listMatchingOffers
+      description: Retrieve all active donation matching offers associated with a project.
       parameters:
         - $ref: "#/components/parameters/ProjectId"
       responses:
@@ -1202,6 +1228,8 @@ paths:
     patch:
       tags: [Projects]
       summary: Update project status
+      operationId: updateProjectStatus
+      description: Update the status of a project (active, paused, rejected) by admin.
       parameters:
         - $ref: "#/components/parameters/ProjectId"
       requestBody:
@@ -1232,6 +1260,8 @@ paths:
     post:
       tags: [Donations]
       summary: Record a donation
+      operationId: recordDonation
+      description: Record a new donation made to a project, including the transaction hash and amount.
       security: []
       requestBody:
         required: true
@@ -1261,6 +1291,8 @@ paths:
     get:
       tags: [Donations]
       summary: List donation messages for a project
+      operationId: listDonationMessages
+      description: Retrieve donation messages left by donors for a specific project.
       parameters:
         - $ref: "#/components/parameters/ProjectIdParam"
         - name: limit
@@ -1288,6 +1320,8 @@ paths:
     get:
       tags: [Donations]
       summary: List donations for a project
+      operationId: listProjectDonations
+      description: Retrieve a paginated list of all donations made to a specific project.
       parameters:
         - $ref: "#/components/parameters/ProjectIdParam"
         - name: limit
@@ -1322,6 +1356,8 @@ paths:
     get:
       tags: [Donations]
       summary: List donations by donor
+      operationId: listDonorDonations
+      description: Retrieve all donations made by a specific donor, identified by their Stellar public key.
       parameters:
         - $ref: "#/components/parameters/PublicKeyParam"
       responses:
@@ -1344,6 +1380,8 @@ paths:
     get:
       tags: [Profiles]
       summary: Get a profile by public key
+      operationId: getProfileByPublicKey
+      description: Retrieve a donor profile by their Stellar public key, including display name, bio, badges, and donation stats.
       parameters:
         - $ref: "#/components/parameters/PublicKeyParam"
       responses:
@@ -1368,6 +1406,8 @@ paths:
     post:
       tags: [Profiles]
       summary: Create or update a profile
+      operationId: upsertProfile
+      description: Create a new donor profile or update an existing one with display name and bio.
       security: []
       requestBody:
         required: true
@@ -1395,6 +1435,8 @@ paths:
     get:
       tags: [Leaderboard]
       summary: Get the donation leaderboard
+      operationId: getLeaderboard
+      description: Retrieve the top donors ranked by total donations, optionally filtered by time period (all, month, year).
       parameters:
         - $ref: "#/components/parameters/LimitQuery"
         - $ref: "#/components/parameters/PeriodQuery"
@@ -1416,6 +1458,8 @@ paths:
     post:
       tags: [Notifications]
       summary: Register a device token
+      operationId: registerDeviceToken
+      description: Register a push notification device token for iOS or Android to receive project updates.
       security: []
       requestBody:
         required: true
@@ -1446,6 +1490,8 @@ paths:
     post:
       tags: [Notifications]
       summary: Follow a project for notifications
+      operationId: followProjectNotifications
+      description: Subscribe to push notifications for updates on a specific project.
       security: []
       requestBody:
         required: true
@@ -1475,6 +1521,8 @@ paths:
     post:
       tags: [Notifications]
       summary: Unfollow a project
+      operationId: unfollowProjectNotifications
+      description: Unsubscribe from push notifications for a specific project.
       security: []
       requestBody:
         required: true
@@ -1500,6 +1548,8 @@ paths:
     get:
       tags: [Notifications]
       summary: List followed projects for a device token
+      operationId: listFollowedProjects
+      description: Retrieve all projects that a device token is following for notifications.
       security: []
       parameters:
         - name: token
@@ -1529,6 +1579,8 @@ paths:
     post:
       tags: [Ratings]
       summary: Submit or update a project rating
+      operationId: submitRating
+      description: Submit a rating and optional review for a project you have donated to.
       security: []
       requestBody:
         required: true
@@ -1556,6 +1608,8 @@ paths:
     get:
       tags: [Ratings]
       summary: Get a pending rating candidate for a donor
+      operationId: getPendingRating
+      description: Retrieve the next project a donor can rate based on their donation history.
       parameters:
         - $ref: "#/components/parameters/DonorAddressQuery"
       responses:
@@ -1580,6 +1634,8 @@ paths:
     post:
       tags: [Updates]
       summary: Create a project update
+      operationId: createProjectUpdate
+      description: Post a new text update for a project to keep donors informed.
       security:
         - BearerAuth: []
       requestBody:
@@ -1612,6 +1668,8 @@ paths:
     post:
       tags: [Updates]
       summary: Toggle a like for a project update
+      operationId: toggleUpdateLike
+      description: Like or unlike a project update to show appreciation.
       security: []
       parameters:
         - $ref: "#/components/parameters/UpdateIdParam"
@@ -1648,6 +1706,8 @@ paths:
     get:
       tags: [Updates]
       summary: Get like count and current user's like status
+      operationId: getUpdateLikeStatus
+      description: Retrieve the current like count and whether a specific donor has liked an update.
       parameters:
         - $ref: "#/components/parameters/UpdateIdParam"
         - name: donorAddress
@@ -1676,6 +1736,8 @@ paths:
     get:
       tags: [Jobs]
       summary: List recent jobs
+      operationId: listJobs
+      description: Retrieve a list of recent escrow jobs on the platform.
       responses:
         "200":
           description: Job list.
@@ -1694,6 +1756,8 @@ paths:
     patch:
       tags: [Jobs]
       summary: Release escrow for a job
+      operationId: releaseJobEscrow
+      description: Release the escrowed funds for a completed job by providing the on-chain transaction hash.
       parameters:
         - $ref: "#/components/parameters/JobId"
       requestBody:
@@ -1729,6 +1793,8 @@ paths:
     get:
       tags: [Jobs]
       summary: Get a job by id
+      operationId: getJobById
+      description: Retrieve detailed information about a specific escrow job by its identifier.
       parameters:
         - $ref: "#/components/parameters/JobId"
       responses:
@@ -1749,6 +1815,8 @@ paths:
     get:
       tags: [Stats]
       summary: Get global platform stats
+      operationId: getGlobalStats
+      description: Retrieve aggregated platform statistics including total donations, XLM raised, and CO2 offset.
       responses:
         "200":
           description: Platform totals.
@@ -1765,6 +1833,8 @@ paths:
     get:
       tags: [Stats]
       summary: Get project counts by category
+      operationId: getCategoryStats
+      description: Retrieve the number of projects grouped by environmental category.
       responses:
         "200":
           description: Category counts.
@@ -1783,6 +1853,8 @@ paths:
     post:
       tags: [Admin]
       summary: Log in as an administrator
+      operationId: adminLogin
+      description: Authenticate as an administrator using username and password credentials.
       security: []
       requestBody:
         required: true
@@ -1805,6 +1877,8 @@ paths:
     post:
       tags: [Admin]
       summary: Refresh an admin token
+      operationId: adminRefreshToken
+      description: Refresh an expired admin authentication token using a refresh token.
       security: []
       requestBody:
         required: true
@@ -1827,6 +1901,8 @@ paths:
     get:
       tags: [Admin]
       summary: Get current admin identity
+      operationId: getAdminMe
+      description: Retrieve the currently authenticated admin user's identity and role.
       responses:
         "200":
           description: Current admin identity.
@@ -1840,6 +1916,8 @@ paths:
     get:
       tags: [Admin]
       summary: Query admin audit log
+      operationId: queryAuditLog
+      description: Query the admin audit log with optional filters for actor, action, and pagination.
       parameters:
         - name: actor
           in: query
@@ -1875,6 +1953,7 @@ paths:
     get:
       tags: [Admin]
       summary: Verify an IPFS document
+      operationId: verifyIPFSDocument
       description: Re-fetches a pinned verification document from the configured IPFS gateway and returns its SHA-256 fingerprint.
       parameters:
         - name: cid
