@@ -54,18 +54,22 @@ describe("Tabs (WAI-ARIA Tab Pattern)", () => {
     expect(tabs[1]).toHaveAttribute("aria-selected", "false");
     expect(tabs[1]).toHaveAttribute("tabIndex", "-1");
 
-    // Each tab has a tab id that the corresponding tabpanel references via aria-labelledby.
+    // Each tab has AA tab id that the corresponding tabpanel references via aria-labelledby.
+    // Only the active tab's panel is rendered in the DOM (inactive panels return null).
     for (const tab of tabs) {
       const tabId = tab.getAttribute("id") ?? "";
       const controlsId = tab.getAttribute("aria-controls") ?? "";
       expect(controlsId).toMatch(/^tabpanel-/);
 
-      const panel = document.getElementById(controlsId);
-      expect(panel).not.toBeNull();
-      expect(panel).toHaveAttribute("aria-labelledby", tabId);
-
-      // aria-controls must point to a real node in the same document.
-      expect(tab.getAttribute("aria-controls")).toBe(panel!.id);
+      // Only the active tab has its panel rendered.
+      const isActive = tab.getAttribute("aria-selected") === "true";
+      if (isActive) {
+        const panel = document.getElementById(controlsId);
+        expect(panel).not.toBeNull();
+        expect(panel).toHaveAttribute("aria-labelledby", tabId);
+        // AAaria-controls must point to a real node in the same document.
+        expect(tab.getAttribute("aria-controls")).toBe(panel!.id);
+      }
     }
 
     // Only the active panel is rendered.

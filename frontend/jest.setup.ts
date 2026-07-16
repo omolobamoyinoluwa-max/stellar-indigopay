@@ -7,5 +7,28 @@ import "@testing-library/jest-dom";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 import { toHaveNoViolations } from "jest-axe";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 expect.extend(toHaveNoViolations as any);
+
+// ── JSDOM polyfills ─────────────────────────────────────────────────────
+// jsdom does not implement ResizeObserver or a layout engine, so
+// el.offsetParent is always null. Polyfill both so components and
+// focus-trap logic work correctly in tests.
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
+global.ResizeObserver = class ResizeObserver {
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  observe() {}
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  unobserve() {}
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  disconnect() {}
+};
+
+Object.defineProperty(HTMLElement.prototype, "offsetParent", {
+  get() {
+    // jsdom lacks a layout engine, so every element's offsetParent is
+    // null by default.  Return the parentNode when the element is
+    // connected to the DOM; null otherwise (matching real behaviour
+    // for detached elements and display:none).
+    return this.isConnected ? this.parentNode : null;
+  },
+});

@@ -64,6 +64,9 @@ describe("MonthlyGivingSetup modal a11y", () => {
         onClose={onClose}
       />,
     );
+    // Wait for useFocusTrap's setTimeout(…, 0) to finish wiring the
+    // keydown listener before dispatching the Escape key.
+    await new Promise((resolve) => setTimeout(resolve, 10));
     await user.keyboard("{Escape}");
     expect(onClose).toHaveBeenCalled();
   });

@@ -123,8 +123,11 @@ export default function MonthlyGivingSetup({
 
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
-            <label className="label">Amount (XLM)</label>
+            <label htmlFor="amount-xlm" className="label">
+              Amount (XLM)
+            </label>
             <input
+              id="amount-xlm"
               type="number"
               min="1"
               step="1"
@@ -134,8 +137,11 @@ export default function MonthlyGivingSetup({
             />
           </div>
           <div>
-            <label className="label">Start Date</label>
+            <label htmlFor="start-date" className="label">
+              Start Date
+            </label>
             <input
+              id="start-date"
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
