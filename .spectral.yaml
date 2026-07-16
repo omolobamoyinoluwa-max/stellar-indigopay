@@ -4,22 +4,10 @@
 # structure (media examples, schema types, server URLs, path parameters,
 # trailing slashes, operation tags, typed enums, etc.).
 #
-# Project-specific conventions enforced here:
-# - Operation summary is required (not just description)
-#
-# 429-on-mutation-endpoints is enforced separately by a CI safety net
-# (.github/workflows/ci.yml) because Spectral's built-in functions
-# cannot assert on specific child keys within an object.
+# Custom-project-specific validations (e.g., 429 on mutation endpoints,
+# inline response descriptions) are handled by a separate Node.js script
+# in scripts/validate-openapi.js — Spectral's built-in functions cannot
+# assert on specific response status code keys, and Spectral 6.x YAML
+# rulesets do not support custom JavaScript functions out-of-the-box.
 #
 extends: "spectral:oas"
-
-rules:
-  # Operation summary is required for documentation generators
-  indigopay-operation-summary:
-    description: Each operation should have a summary
-    severity: error
-    message: "Operation at {{path}} is missing a summary. Add a summary field."
-    given: $.paths.*[get,post,patch,delete,put]
-    then:
-      field: summary
-      function: truthy

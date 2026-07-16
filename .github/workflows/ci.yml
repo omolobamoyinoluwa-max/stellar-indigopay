@@ -108,37 +108,14 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Validate OpenAPI spec
+      - name: Validate OpenAPI spec with Spectral (built-in OAS rules)
         run: npx @stoplight/spectral-cli@6.14.3 lint docs/api/openapi.yaml --ruleset .spectral.yaml
 
-      - name: Enforce 429 on all mutation endpoints (safety net)
-        run: |
-          set -euo pipefail
-          echo "Verifying that all POST/PATCH/DELETE operations declare a 429 response..."
-          # Single-pass awk: track path and mutation method, reset on ANY
-          # method line to avoid stale-method bugs on mixed-method paths.
-          awk '
-            /^  \/api\// {
-              # Check previous path mutation BEFORE resetting state
-              if (method && !has429 && in_resp) {
-                printf "❌ Missing 429: %s %s\n", method, path
-                exit_code=1
-              }
-              path=$0; method=""; in_resp=0; has429=0;
-            }
-            /^    (get|post|patch|delete|put):/{ method=""; in_resp=0; has429=0; }
-            /^    (post|patch|delete):/           { method=$0; }
-            method && /^      responses:/          { in_resp=1; }
-            method && in_resp && /"429"/          { has429=1; }
-            END {
-              if (method && !has429 && in_resp) {
-                printf "❌ Missing 429: %s %s\n", method, path
-                exit_code=1
-              }
-              if (exit_code) exit exit_code
-              print "✅ All mutation endpoints have 429 responses"
-            }
-          ' docs/api/openapi.yaml
+      - name: Install dependencies for custom validation
+        run: npm ci
+
+      - name: Validate project-specific conventions (429, descriptions, summaries)
+        run: node scripts/validate-openapi.js
 
   zap_scan:
     name: DAST Security Scan (OWASP ZAP)
