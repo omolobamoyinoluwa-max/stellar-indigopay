@@ -18,6 +18,8 @@ import {
 import { findBestPath, getAllBalances, formatConversionEstimate, formatPathForDisplay, type ConversionEstimate, type DonorAsset } from "@/lib/dex";
 import { signTransactionWithWallet } from "@/lib/wallet";
 import { recordDonation } from "@/lib/api";
+import useOnlineStatus from "@/hooks/useOnlineStatus";
+import { queueDonation, syncQueuedDonations } from "@/lib/offlineDonationQueue";
 import { formatXLM, formatCO2 } from "@/utils/format";
 import type { ClimateProject } from "@/utils/types";
 
@@ -65,6 +67,7 @@ export default function DonateForm({
     useState<ConversionEstimate | null>(null);
   const [conversionLoading, setConversionLoading] = useState(false);
   const [conversionError, setConversionError] = useState<string | null>(null);
+  const isOnline = useOnlineStatus();
 
   useEffect(() => {
     if (!initialAmount) return;
@@ -186,6 +189,22 @@ export default function DonateForm({
     return "text-[#4F46E5]";
   };
 
+  useEffect(() => {
+    if (!isOnline) return;
+
+    void syncQueuedDonations(async (payload) => {
+      try {
+        await recordDonation({
+          ...payload,
+          transactionHash: payload.transactionHash || "queued-offline",
+        });
+        return true;
+      } catch {
+        return false;
+      }
+    });
+  }, [isOnline]);
+
   const handleDonate = async () => {
     if (!isValid || step !== "idle") return;
     setError(null);
@@ -193,6 +212,23 @@ export default function DonateForm({
     // Generate a unique idempotency key so the backend can safely deduplicate
     // retried donation-recording requests within 24 hours.
     const idempotencyKey = crypto.randomUUID();
+
+    if (!isOnline) {
+      await queueDonation({
+        projectId: project.id,
+        donorAddress: publicKey,
+        amount: amountNum.toString(),
+        currency,
+        message: message.trim() || undefined,
+        idempotencyKey,
+      });
+      setStep("success");
+      setTxHash(null);
+      setError(
+        "Your donation was queued while offline. It will be sent automatically once you reconnect.",
+      );
+      return;
+    }
 
     try {
       // ── DEX Path-Payment Donation (non-XLM asset → XLM via DEX) ──────
@@ -352,7 +388,23 @@ export default function DonateForm({
         onSuccess?.();
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      const fallbackError =
+        err instanceof Error ? err.message : "An error occurred";
+      if (!navigator.onLine) {
+        await queueDonation({
+          projectId: project.id,
+          donorAddress: publicKey,
+          amount: amountNum.toString(),
+          currency,
+          message: message.trim() || undefined,
+          idempotencyKey,
+        });
+        setError("The donation could not be submitted right now, so it was queued for automatic retry.");
+        setStep("success");
+        setTxHash(null);
+        return;
+      }
+      setError(fallbackError);
       setStep("error");
       setTimeout(() => setStep("idle"), 3000);
     }
@@ -397,7 +449,15 @@ export default function DonateForm({
     );
   }
   return (
-    <div className="card animate-fade-in">
+    <div className="card animate-fade-in" aria-busy={step !== "idle"}>
+      {/* Hidden live region describing the current donation flow status so
+          screen-reader users hear each step change without visual cues. */}
+      <p className="sr-only" aria-live="polite">
+        {step === "building" && "Building donation transaction…"}
+        {step === "signing" && "Awaiting wallet signature."}
+        {step === "submitting" && "Submitting transaction to Stellar."}
+        {step === "recording" && "Recording donation. Almost done."}
+      </p>
       <h3 className="font-display text-lg font-semibold text-[#0F172A] dark:text-[#E2E8F0] mb-1">
         Make a Donation
       </h3>
@@ -535,9 +595,16 @@ export default function DonateForm({
             min="1"
             step="1"
             className="input-field"
+            aria-invalid={Boolean(amount) && !isValid}
+            aria-describedby={amount && !isValid ? "donate-amount-error" : undefined}
+            inputMode="decimal"
           />
           {amount && !isValid && (
-            <p className="mt-1 text-xs text-[#E11D48]">
+            <p
+              id="donate-amount-error"
+              className="mt-1 text-xs text-[#B91C1C] dark:text-[#FCA5A5]"
+              role="alert"
+            >
               Minimum donation is 1 {currency}
             </p>
           )}
@@ -596,7 +663,10 @@ export default function DonateForm({
       </div>
 
       {step === "error" && error && (
-        <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm font-body">
+        <div
+          className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm font-body"
+          role="alert"
+        >
           {error}
         </div>
       )}
@@ -669,7 +739,7 @@ export default function DonateForm({
       </button>
 
       {step === "signing" && (
-        <p className="text-center text-xs text-[#475569] dark:text-[#94A3B8] animate-pulse font-body">
+        <p className="text-center text-xs text-[#475569] dark:text-[#94A3B8] animate-pulse font-body" aria-live="polite">
           Please confirm in your Freighter wallet...
         </p>
       )}

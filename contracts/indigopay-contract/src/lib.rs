@@ -2009,7 +2009,7 @@ mod tests {
         projects.push_back(ProjectInit {
             id: pid,
             name: String::from_str(&env, "Duplicate"),
-            wallet: wallet,
+            wallet,
             co2_per_xlm: 50,
         });
 
@@ -2742,7 +2742,6 @@ mod tests {
     /// from any valid `amount <= i128::MAX` (since
     /// `xlm_units * MAX_CO2_PER_XLM <= 9.22e16 < i128::MAX`), so no
     /// redundant overflow tests are kept here.
-
     /// Replaying the same donor must NOT inflate `project.donor_count` —
     /// it counts unique donors.
     #[test]

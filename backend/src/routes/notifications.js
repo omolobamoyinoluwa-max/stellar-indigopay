@@ -12,6 +12,7 @@ const router = express.Router();
 const { v4: uuidv4 } = require("uuid");
 const pool = require("../db/pool");
 const { AppError } = require("../errors");
+const { verifyUnsubscribeToken } = require("../services/digestBuilder");
 
 function parseLastSeen(value) {
   if (!value || typeof value !== "string") return null;
@@ -400,6 +401,149 @@ router.post("/unregister", async (req, res, next) => {
     }
 
     res.json({ success: true, data: { tokenId: result.rows[0].id, active: false } });
+  } catch (e) {
+    next(e);
+  }
+});
+
+// GET /api/notifications/unsubscribe
+// Disable email digest delivery for the wallet address encoded in the token.
+router.get("/unsubscribe", async (req, res, next) => {
+  try {
+    const { token } = req.query || {};
+
+    if (!token || typeof token !== "string") {
+      throw new AppError("VALIDATION_ERROR", { field: "token" });
+    }
+
+    let payload;
+    try {
+      payload = verifyUnsubscribeToken(token);
+    } catch (err) {
+      throw new AppError("VALIDATION_ERROR", {
+        field: "token",
+        detail: err.message,
+      });
+    }
+
+    await pool.query(
+      `INSERT INTO notification_preferences (id, wallet_address, channel, type, enabled)
+       VALUES ($1, $2, 'email', 'digest', false)
+       ON CONFLICT (wallet_address, channel, type)
+       DO UPDATE SET enabled = false, updated_at = NOW()`,
+      [uuidv4(), payload.walletAddress],
+    );
+
+    res.json({ success: true, message: "Digest emails unsubscribed successfully" });
+  } catch (e) {
+    next(e);
+  }
+});
+
+// PATCH /api/notifications/preferences
+// Update a single project-level notification preference.
+// Body: { walletAddress, projectId, channel, enabled }
+router.patch("/preferences", async (req, res, next) => {
+  try {
+    const { walletAddress, projectId, channel, enabled } = req.body || {};
+
+    if (!walletAddress || typeof walletAddress !== "string") {
+      return res.status(400).json({ error: "walletAddress is required" });
+    }
+    if (!projectId || typeof projectId !== "string") {
+      return res.status(400).json({ error: "projectId is required" });
+    }
+    if (!channel || typeof channel !== "string") {
+      return res.status(400).json({ error: "channel is required" });
+    }
+    if (typeof enabled !== "boolean") {
+      return res.status(400).json({ error: "enabled must be a boolean" });
+    }
+
+    await pool.query(
+      `INSERT INTO notification_preferences (id, wallet_address, project_id, channel, enabled)
+       VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (wallet_address, project_id, channel)
+       WHERE project_id IS NOT NULL
+       DO UPDATE SET enabled = $5, updated_at = NOW()`,
+      [uuidv4(), walletAddress, projectId, channel, enabled],
+    );
+
+    res.json({ success: true, data: { walletAddress, projectId, channel, enabled } });
+  } catch (e) {
+    next(e);
+  }
+});
+
+// GET /api/notifications/inbox
+// List in-app notifications for a wallet, newest first.
+router.get("/inbox", async (req, res, next) => {
+  try {
+    const { walletAddress } = req.query;
+    const limit = Math.min(parseInt(req.query.limit || "50", 10), 100);
+    const offset = parseInt(req.query.offset || "0", 10);
+
+    if (!walletAddress || typeof walletAddress !== "string") {
+      return res.status(400).json({ error: "walletAddress query parameter is required" });
+    }
+
+    const { rows } = await pool.query(
+      `SELECT id, title, body, data, read, created_at
+       FROM in_app_notifications
+       WHERE wallet_address = $1
+       ORDER BY created_at DESC
+       LIMIT $2 OFFSET $3`,
+      [walletAddress, limit, offset],
+    );
+
+    const countResult = await pool.query(
+      "SELECT COUNT(*) AS total FROM in_app_notifications WHERE wallet_address = $1",
+      [walletAddress],
+    );
+
+    const unreadResult = await pool.query(
+      "SELECT COUNT(*) AS unread FROM in_app_notifications WHERE wallet_address = $1 AND read = FALSE",
+      [walletAddress],
+    );
+
+    res.json({
+      success: true,
+      data: {
+        notifications: rows,
+        total: parseInt(countResult.rows[0].total, 10),
+        unread: parseInt(unreadResult.rows[0].unread, 10),
+        limit,
+        offset,
+      },
+    });
+  } catch (e) {
+    next(e);
+  }
+});
+
+// POST /api/notifications/inbox/:id/read
+// Mark a single in-app notification as read.
+router.post("/inbox/:id/read", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { walletAddress } = req.body || {};
+
+    if (!walletAddress || typeof walletAddress !== "string") {
+      return res.status(400).json({ error: "walletAddress is required in body" });
+    }
+
+    const result = await pool.query(
+      `UPDATE in_app_notifications SET read = TRUE
+       WHERE id = $1 AND wallet_address = $2
+       RETURNING id, read`,
+      [id, walletAddress],
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Notification not found" });
+    }
+
+    res.json({ success: true, data: { id, read: true } });
   } catch (e) {
     next(e);
   }
